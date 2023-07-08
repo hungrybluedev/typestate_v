@@ -1,4 +1,4 @@
 Standard checking failed with the following errors:
 1: function `main` must be declared in the main module
-	File: src\case_studies\01_read_only_file\case01_errors\read_only_file.v
+	File: src/case_studies/01_read_only_file/case01_errors/read_only_file.v
 	Line: 1

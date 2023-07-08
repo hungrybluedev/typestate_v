@@ -7,7 +7,6 @@ mut:
 }
 
 pub fn (mut s Speaker) turn_on() {
-	count := 0
 	s.power_on = true
 }
 
@@ -28,7 +27,7 @@ fn main() {
 	mut s := Speaker{}
 
 	// Invalid: must turn on speaker before adjusting volume
-	s.turn_low()
+	// s.turn_low()
 
 	// All of these are valid
 	s.turn_on()

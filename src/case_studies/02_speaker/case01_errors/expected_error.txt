@@ -1,0 +1,7 @@
+Standard checking failed with the following errors:
+1: `s` is immutable, declare it with `mut` to make it mutable
+	File: src/case_studies/02_speaker/case01_errors/speaker.v
+	Line: 10
+2: function `main` must be declared in the main module
+	File: src/case_studies/02_speaker/case01_errors/speaker.v
+	Line: 1

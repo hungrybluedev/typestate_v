@@ -6,7 +6,7 @@ mut:
 	power_on bool
 }
 
-pub fn (mut s Speaker) turn_on() {
+pub fn (s Speaker) turn_on() {
 	s.power_on = true
 }
 

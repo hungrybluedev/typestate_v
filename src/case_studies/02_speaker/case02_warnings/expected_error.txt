@@ -1,0 +1,4 @@
+Standard checking produced the following warnings:
+1: unused variable: `count`
+	File: src/case_studies/02_speaker/case02_warnings/speaker.v
+	Line: 10
