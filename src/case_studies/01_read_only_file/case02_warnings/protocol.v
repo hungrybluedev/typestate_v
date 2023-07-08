@@ -11,19 +11,25 @@ pub enum FileStates {
 
 const protocol = tpstv.Protocol[FileStates]{
 	name: 'Read-only File Protocol'
-	types: ['read_only_file.ReadOnlyFile']
+	types: ['main.ReadOnlyFile']
 	rules: [
 		tpstv.Rule[FileStates]{
 			name: 'Open File'
 			start: .unready
 			end: .open
-			stimulus: 'ReadOnlyFile.open'
+			stimulus: 'ReadOnlyFile.static.open'
 		},
 		tpstv.Rule[FileStates]{
 			name: 'Read File'
 			start: .open
 			end: .reading
-			stimulus: 'read'
+			stimulus: 'ReadOnlyFile.read_line'
+		},
+		tpstv.Rule[FileStates]{
+			name: 'Close File'
+			start: .reading
+			end: .closed
+			stimulus: 'ReadOnlyFile.close'
 		},
 	]
 }

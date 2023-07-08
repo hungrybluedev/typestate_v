@@ -33,7 +33,7 @@ fn main() {
 	mut sample_file := ReadOnlyFile.open('data/sample.txt')!
 
 	// Don't close the file here
-	// sample_file.close()
+	sample_file.close()
 
 	for {
 		line := sample_file.read_line() or { break }

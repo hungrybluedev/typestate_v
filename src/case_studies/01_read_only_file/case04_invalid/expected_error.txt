@@ -1,0 +1,3 @@
+TODO:
+Decide output message stating the file, line number and location
+of the function call that causes the thing to be in an invalid state.
