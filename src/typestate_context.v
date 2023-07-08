@@ -70,7 +70,7 @@ fn serialise_errors(errs []errors.Error) string {
 	for index, err in errs {
 		output.write_string('${index + 1}: ${err.message}\n')
 		output.write_string('	File: ${err.file_path}\n')
-		output.write_string('	Line: ${err.pos.line_nr}\n')
+		output.write_string('	Line: ${err.pos.line_nr + 1}\n')
 	}
 
 	return output.str()
@@ -82,7 +82,7 @@ fn serialise_warnings(warnings []errors.Warning) string {
 	for index, warning in warnings {
 		output.write_string('${index + 1}: ${warning.message}\n')
 		output.write_string('	File: ${warning.file_path}\n')
-		output.write_string('	Line: ${warning.pos.line_nr}\n')
+		output.write_string('	Line: ${warning.pos.line_nr + 1}\n')
 	}
 
 	return output.str()
