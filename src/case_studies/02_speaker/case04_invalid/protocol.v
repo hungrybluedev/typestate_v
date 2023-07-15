@@ -9,9 +9,8 @@ pub enum SpeakerStates {
 	high
 }
 
-const protocol = tpstv.Protocol[SpeakerStates]{
+const protocol = tpstv.Protocol[Speaker, SpeakerStates]{
 	name: 'Speaker protocol'
-	types: ['main.Speaker']
 	rules: [
 		tpstv.Rule[SpeakerStates]{
 			name: 'Turn on speaker'

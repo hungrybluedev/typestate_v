@@ -8,9 +8,8 @@ pub struct Rule[S] {
 	stimulus    string [required]
 }
 
-pub struct Protocol[S] {
-	name        string    [required]
+pub struct Protocol[T, S] {
+	name        string   [required]
 	description string
-	types       []string  [required]
-	rules       []Rule[S] [required]
+	rules []Rule[S] [required]
 }

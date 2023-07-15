@@ -9,9 +9,8 @@ pub enum FileStates {
 	closed
 }
 
-const protocol = tpstv.Protocol[FileStates]{
+const protocol = tpstv.Protocol[ReadOnlyFile, FileStates]{
 	name: 'Read-only File Protocol'
-	types: ['main.ReadOnlyFile']
 	rules: [
 		tpstv.Rule[FileStates]{
 			name: 'Open File'
