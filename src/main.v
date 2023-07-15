@@ -2,6 +2,7 @@ module main
 
 import os
 import cli
+import v.ast
 
 fn start(command cli.Command) ! {
 	// We are guaranteed that at least one argument is present
@@ -20,7 +21,69 @@ fn start(command cli.Command) ! {
 
 	context.precheck()!
 
+	// println(context.builder.table)
+	mut path_ast_map := map[string]&ast.File{}
+	// paths := context.builder.parsed_files.map(it.path)
+	// for path in paths {
+	// 	println(path)
+	// }
+	for ast in context.builder.parsed_files {
+		path_ast_map[ast.path] = ast
+	}
+	println('Number of parsed files: ${path_ast_map.len}\n\n')
+
+	println('Relevant types:')
+	for symbol in context.builder.table.type_symbols {
+		if symbol.name.contains('Speaker') {
+			println('${symbol.name} (${symbol.idx})')
+		}
+		if symbol.name.contains('Protocol') {
+			println('${symbol.name} (${symbol.idx})')
+		}
+	}
+	println('\n\nRelevant statements:')
+
+	// functions := context.builder.table.fns.clone()
+	// for name, function in functions {
+	// if name.contains('main') {
+	// 	println('${name}: ${function.file}')
+	// 	target_file := path_ast_map[function.file] or { panic('Could not find the file.') }
+	// 	for stmt in target_file.stmts {
+	// 		if stmt is ast.FnDecl && stmt.name == name {
+	// 			for real_stmt in stmt.stmts {
+	// 				println(real_stmt)
+	// 				if real_stmt is ast.AssignStmt {
+	// 					println(real_stmt.op)
+	// 					println(real_stmt.right_types.map(it.str()))
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// }
+
 	// Register types and protocols
+	protocol_file := path_ast_map[os.join_path(directory, 'protocol.v')] or {
+		panic('Could not open protocol file.')
+	}
+	protocol_statements := protocol_file.stmts
+
+	for statement in protocol_statements {
+		if statement is ast.EnumDecl {
+			// Extract all the enum values
+			names := statement.fields.map(it.name)
+			println(names)
+		}
+		if statement is ast.ConstDecl {
+			// Find the protocol constant
+			for const_field in statement.fields {
+				if const_field.name == 'main.protocol' && const_field.expr is ast.StructInit {
+					println(const_field.expr.typ)
+					println(const_field.expr.init_fields)
+				}
+			}
+		}
+	}
 
 	// Validate protocols
 }
