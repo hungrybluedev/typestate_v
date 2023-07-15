@@ -9,7 +9,7 @@ pub struct Rule[S] {
 }
 
 pub struct Protocol[T, S] {
-	name        string   [required]
+	name        string    [required]
 	description string
-	rules []Rule[S] [required]
+	rules       []Rule[S] [required]
 }
