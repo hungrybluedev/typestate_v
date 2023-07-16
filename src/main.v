@@ -1,8 +1,8 @@
 module main
 
+import v.ast
 import os
 import cli
-import v.ast
 
 fn start(command cli.Command) ! {
 	// We are guaranteed that at least one argument is present
@@ -63,29 +63,21 @@ fn start(command cli.Command) ! {
 	// }
 
 	// Register types and protocols
+
+	// We expect to find a protocol.v file in the directory
+	// If we don't find it, we return an error
 	protocol_file := path_ast_map[os.join_path(directory, 'protocol.v')] or {
-		panic('Could not open protocol file.')
+		return error('Could not open protocol file.')
 	}
 	protocol_statements := protocol_file.stmts
 
-	for statement in protocol_statements {
-		if statement is ast.EnumDecl {
-			// Extract all the enum values
-			names := statement.fields.map(it.name)
-			println(names)
-		}
-		if statement is ast.ConstDecl {
-			// Find the protocol constant
-			for const_field in statement.fields {
-				if const_field.name == 'main.protocol' && const_field.expr is ast.StructInit {
-					println(const_field.expr.typ)
-					println(const_field.expr.init_fields)
-				}
-			}
-		}
-	}
+	// For now, we only support only one protocol per file
+	discovered_protocol := extract_protocol(protocol_statements)!
+
+	dump(discovered_protocol)
 
 	// Validate protocols
+	// Make sure the state type mentioned in the rules is the same as the one we found
 }
 
 fn main() {

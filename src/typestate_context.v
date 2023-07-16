@@ -1,10 +1,32 @@
 module main
 
-import v.pref as preferences
+import v.ast
 import v.builder
-import v.parser
 import v.errors
+import v.pref as preferences
+import v.parser
 import strings
+
+struct TypestateState {
+	name string
+}
+
+struct TypestateRule {
+	name        string
+	description string
+
+	start TypestateState
+	end   TypestateState
+
+	stimulus string
+}
+
+struct TypestateProtocol {
+	name        string
+	description string
+	states      []TypestateState
+	rules       []TypestateRule
+}
 
 [heap]
 struct TypestateContext {
@@ -86,4 +108,121 @@ fn serialise_warnings(warnings []errors.Warning) string {
 	}
 
 	return output.str()
+}
+
+fn extract_rule(fields []ast.StructInitField) !TypestateRule {
+	mut rule_name := 'Not found'
+	mut stimulus := 'Not found'
+
+	mut start := TypestateState{}
+	mut end := TypestateState{}
+
+	for field in fields {
+		if field.name == 'name' {
+			string_val := field.expr as ast.StringLiteral
+			rule_name = string_val.val
+		}
+		if field.name == 'stimulus' {
+			string_val := field.expr as ast.StringLiteral
+			stimulus = string_val.val
+		}
+		if field.name == 'start' {
+			enum_val := field.expr as ast.EnumVal
+			start = TypestateState{
+				name: enum_val.val
+			}
+		}
+		if field.name == 'end' {
+			enum_val := field.expr as ast.EnumVal
+			end = TypestateState{
+				name: enum_val.val
+			}
+		}
+	}
+
+	return TypestateRule{
+		name: rule_name
+		stimulus: stimulus
+		start: start
+		end: end
+	}
+}
+
+fn extract_all_rules(rules ast.Expr) ![]TypestateRule {
+	if rules is ast.ArrayInit {
+		mut rule_buffer := []TypestateRule{}
+		for rule in rules.exprs {
+			rule_decl := rule as ast.StructInit
+			rule_buffer << extract_rule(rule_decl.init_fields)!
+		}
+		return rule_buffer
+	} else {
+		return error('Expected an array of rules.')
+	}
+}
+
+fn extract_protocol(protocol_statements []ast.Stmt) !TypestateProtocol {
+	// For the states
+	mut already_found_protocol_states := false
+	mut discovered_states := []TypestateState{}
+
+	// For the rules
+	mut already_found_protocol_rules := false
+	mut discovered_rules := []TypestateRule{}
+
+	mut protocol_name := 'Not found'
+	mut protocol_description := 'Not found'
+
+	for statement in protocol_statements {
+		if statement is ast.EnumDecl {
+			if already_found_protocol_states {
+				return error('Found more than one protocol in the protocol file.')
+			}
+
+			// Extract all the enum values
+			for state in statement.fields {
+				discovered_states << TypestateState{
+					name: state.name
+				}
+			}
+
+			//
+			already_found_protocol_states = true
+		}
+		if statement is ast.ConstDecl {
+			// Find the protocol constant
+			for const_field in statement.fields {
+				if const_field.name.ends_with('protocol') && const_field.expr is ast.StructInit {
+					init_fields := const_field.expr.init_fields
+					for init_field in init_fields {
+						match init_field.name {
+							'rules' {
+								if already_found_protocol_rules {
+									return error('Found more than one protocol in the protocol file.')
+								}
+								discovered_rules << extract_all_rules(init_field.expr)!
+
+								already_found_protocol_rules = true
+							}
+							'name' {
+								protocol_name = (init_field.expr as ast.StringLiteral).val
+							}
+							'description' {
+								protocol_description = (init_field.expr as ast.StringLiteral).val
+							}
+							else {
+								return error('Unknown field in protocol constant.')
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return TypestateProtocol{
+		name: protocol_name
+		description: protocol_description
+		states: discovered_states
+		rules: discovered_rules
+	}
 }
