@@ -22,6 +22,7 @@ struct TypestateRule {
 }
 
 struct TypestateProtocol {
+	full_type   ast.Type
 	name        string
 	description string
 	states      []TypestateState
@@ -173,6 +174,8 @@ fn extract_protocol(protocol_statements []ast.Stmt) !TypestateProtocol {
 	mut protocol_name := 'Not found'
 	mut protocol_description := 'Not found'
 
+	mut protocol_type := -1
+
 	for statement in protocol_statements {
 		if statement is ast.EnumDecl {
 			if already_found_protocol_states {
@@ -189,10 +192,14 @@ fn extract_protocol(protocol_statements []ast.Stmt) !TypestateProtocol {
 			//
 			already_found_protocol_states = true
 		}
+
 		if statement is ast.ConstDecl {
 			// Find the protocol constant
 			for const_field in statement.fields {
 				if const_field.name.ends_with('protocol') && const_field.expr is ast.StructInit {
+					// Show the types related to the protocol
+					protocol_type = const_field.typ
+
 					init_fields := const_field.expr.init_fields
 					for init_field in init_fields {
 						match init_field.name {
@@ -220,6 +227,7 @@ fn extract_protocol(protocol_statements []ast.Stmt) !TypestateProtocol {
 		}
 	}
 	return TypestateProtocol{
+		full_type: protocol_type
 		name: protocol_name
 		description: protocol_description
 		states: discovered_states

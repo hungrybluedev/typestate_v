@@ -21,27 +21,11 @@ fn start(command cli.Command) ! {
 
 	context.precheck()!
 
-	// println(context.builder.table)
 	mut path_ast_map := map[string]&ast.File{}
-	// paths := context.builder.parsed_files.map(it.path)
-	// for path in paths {
-	// 	println(path)
-	// }
 	for ast in context.builder.parsed_files {
 		path_ast_map[ast.path] = ast
 	}
 	println('Number of parsed files: ${path_ast_map.len}\n\n')
-
-	println('Relevant types:')
-	for symbol in context.builder.table.type_symbols {
-		if symbol.name.contains('Speaker') {
-			println('${symbol.name} (${symbol.idx})')
-		}
-		if symbol.name.contains('Protocol') {
-			println('${symbol.name} (${symbol.idx})')
-		}
-	}
-	println('\n\nRelevant statements:')
 
 	// functions := context.builder.table.fns.clone()
 	// for name, function in functions {
@@ -74,10 +58,28 @@ fn start(command cli.Command) ! {
 	// For now, we only support only one protocol per file
 	discovered_protocol := extract_protocol(protocol_statements)!
 
-	dump(discovered_protocol)
+	// dump(discovered_protocol)
 
 	// Validate protocols
 	// Make sure the state type mentioned in the rules is the same as the one we found
+
+	println('Relevant types:')
+	// dump(context.builder.table.type_symbols)
+	for symbol in context.builder.table.type_symbols {
+		if symbol.idx == discovered_protocol.full_type {
+			println('${symbol.name} (${symbol.idx})')
+			full_name := symbol.name
+
+			dump(symbol.symbol_name_except_generic())
+
+			rest := full_name.all_after(symbol.symbol_name_except_generic()).trim('[]').split(',').map(it.trim_space())
+			for name in rest {
+				println(context.builder.table.find_sym_and_type_idx(name))
+			}
+			// find_sym_and_type_idx
+		}
+	}
+	// println('\n\nRelevant statements:')
 }
 
 fn main() {
