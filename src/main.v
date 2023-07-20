@@ -21,11 +21,7 @@ fn start(command cli.Command) ! {
 
 	context.precheck()!
 
-	mut path_ast_map := map[string]&ast.File{}
-	for ast in context.builder.parsed_files {
-		path_ast_map[ast.path] = ast
-	}
-	println('Number of parsed files: ${path_ast_map.len}\n\n')
+	println('Number of parsed files: ${context.path_ast_map.len}\n\n')
 
 	// functions := context.builder.table.fns.clone()
 	// for name, function in functions {
@@ -50,7 +46,7 @@ fn start(command cli.Command) ! {
 
 	// We expect to find a protocol.v file in the directory
 	// If we don't find it, we return an error
-	protocol_file := path_ast_map[os.join_path(directory, 'protocol.v')] or {
+	protocol_file := context.path_ast_map[os.join_path(directory, 'protocol.v')] or {
 		return error('Could not open protocol file.')
 	}
 	protocol_statements := protocol_file.stmts
@@ -109,7 +105,20 @@ fn start(command cli.Command) ! {
 			dump(automata)
 		}
 	}
-	// println('\n\nRelevant statements:')
+	println("\n\nFinding the main function' statements:")
+	main_fn := context.builder.table.fns['main.main']
+
+	main_statements := context.get_statements_for(main_fn)!
+
+	for statement in main_statements {
+		print(statement.type_name())
+		println('\t' + statement.str())
+
+		if statement is ast.AssignStmt {
+			println(statement.op)
+			println(statement.right_types.map(it.str()))
+		}
+	}
 }
 
 fn main() {
