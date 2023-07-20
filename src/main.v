@@ -70,13 +70,43 @@ fn start(command cli.Command) ! {
 			println('${symbol.name} (${symbol.idx})')
 			full_name := symbol.name
 
-			dump(symbol.symbol_name_except_generic())
-
 			rest := full_name.all_after(symbol.symbol_name_except_generic()).trim('[]').split(',').map(it.trim_space())
-			for name in rest {
-				println(context.builder.table.find_sym_and_type_idx(name))
+
+			mut target_type, _ := context.builder.table.find_sym_and_type_idx(rest[0])
+			// mut target_states, _ := context.builder.table.find_sym_and_type_idx(rest[1])
+
+			// dump(target_states)
+			// dump(target_type)
+
+			mut mentioned_methods := map[string]bool{}
+
+			// Iterate over the rules and check if the mentioned methods are present in the protocol
+			for rule in discovered_protocol.rules {
+				if rule.stimulus in mentioned_methods {
+				}
+				if rule.stimulus !in mentioned_methods {
+					mentioned_methods[rule.stimulus.all_after_first('.')] = true
+				}
 			}
-			// find_sym_and_type_idx
+
+			for function in target_type.methods {
+				if function.name !in mentioned_methods {
+					return error('Method ${function.name} is not mentioned in the protocol.')
+				}
+			}
+
+			// Make sure we have all the states mentioned in the protocol rules
+			for rule in discovered_protocol.rules {
+				if !discovered_protocol.has_state(rule.start) {
+					return error('State ${rule.start} is not mentioned in the protocol.')
+				}
+				if !discovered_protocol.has_state(rule.end) {
+					return error('State ${rule.end} is not mentioned in the protocol.')
+				}
+			}
+
+			automata := TypestateAutomata.build(discovered_protocol)!
+			dump(automata)
 		}
 	}
 	// println('\n\nRelevant statements:')
