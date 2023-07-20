@@ -29,6 +29,15 @@ struct TypestateProtocol {
 	rules       []TypestateRule
 }
 
+fn (protocol TypestateProtocol) has_state(state TypestateState) bool {
+	for protocol_state in protocol.states {
+		if protocol_state.name == state.name {
+			return true
+		}
+	}
+	return false
+}
+
 [heap]
 struct TypestateContext {
 	directory string
@@ -232,5 +241,42 @@ fn extract_protocol(protocol_statements []ast.Stmt) !TypestateProtocol {
 		description: protocol_description
 		states: discovered_states
 		rules: discovered_rules
+	}
+}
+
+struct TypestateTransition {
+	stimulus string
+	start    TypestateState
+	end      TypestateState
+}
+
+struct TypestateAutomata {
+	states        []TypestateState
+	initial_state TypestateState
+	transitions   map[string]TypestateTransition
+}
+
+fn TypestateAutomata.build(protocol TypestateProtocol) !TypestateAutomata {
+	states := protocol.states
+	rules := protocol.rules
+
+	mut transitions := map[string]TypestateTransition{}
+
+	for rule in rules {
+		key := '${rule.start.name} + ${rule.stimulus}'
+		if key in transitions {
+			return error('Found duplicate transition: ${key}')
+		}
+		transitions[key] = TypestateTransition{
+			stimulus: rule.stimulus
+			start: rule.start
+			end: rule.end
+		}
+	}
+
+	return TypestateAutomata{
+		states: states
+		initial_state: states[0]
+		transitions: transitions
 	}
 }
