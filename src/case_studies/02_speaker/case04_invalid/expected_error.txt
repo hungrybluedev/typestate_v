@@ -1,3 +1,3 @@
-TODO:
-Decide output message stating the file, line number and location
-of the function call that causes the thing to be in an invalid state.
+Typestate error: Current state is off. Transition "off + Speaker.turn_low" not accepted.
+	File: src/case_studies/02_speaker/case04_invalid/speaker.v
+	Line: 30

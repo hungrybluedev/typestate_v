@@ -7,15 +7,15 @@ const (
 	case_study_location    = os.join_path('src', 'case_studies')
 	case_study_directories = [
 		// Read-only file
-		os.join_path('01_read_only_file', 'case01_errors'),
-		os.join_path('01_read_only_file', 'case02_warnings'),
-		os.join_path('01_read_only_file', 'case03_normal'),
+		// os.join_path('01_read_only_file', 'case01_errors'),
+		// os.join_path('01_read_only_file', 'case02_warnings'),
+		// os.join_path('01_read_only_file', 'case03_normal'),
 		// os.join_path('01_read_only_file', 'case04_invalid'),
 		// Speaker
 		os.join_path('02_speaker', 'case01_errors'),
 		os.join_path('02_speaker', 'case02_warnings'),
 		os.join_path('02_speaker', 'case03_normal'),
-		// os.join_path('02_speaker', 'case04_invalid'),
+		os.join_path('02_speaker', 'case04_invalid'),
 		// RNG
 	]
 )

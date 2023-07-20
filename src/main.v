@@ -54,13 +54,14 @@ fn start(command cli.Command) ! {
 	// For now, we only support only one protocol per file
 	discovered_protocol := extract_protocol(protocol_statements)!
 
-	// dump(discovered_protocol)
-
 	// Validate protocols
 	// Make sure the state type mentioned in the rules is the same as the one we found
 
 	println('Relevant types:')
-	// dump(context.builder.table.type_symbols)
+	mut target_type := &ast.TypeSymbol{}
+	mut original_automata := TypestateAutomata{}
+	mut just_name := ''
+
 	for symbol in context.builder.table.type_symbols {
 		if symbol.idx == discovered_protocol.full_type {
 			println('${symbol.name} (${symbol.idx})')
@@ -68,11 +69,9 @@ fn start(command cli.Command) ! {
 
 			rest := full_name.all_after(symbol.symbol_name_except_generic()).trim('[]').split(',').map(it.trim_space())
 
-			mut target_type, _ := context.builder.table.find_sym_and_type_idx(rest[0])
+			target_type, _ = context.builder.table.find_sym_and_type_idx(rest[0])
 			// mut target_states, _ := context.builder.table.find_sym_and_type_idx(rest[1])
-
-			// dump(target_states)
-			// dump(target_type)
+			just_name = target_type.name.all_after_first(target_type.mod + '.')
 
 			mut mentioned_methods := map[string]bool{}
 
@@ -85,6 +84,7 @@ fn start(command cli.Command) ! {
 				}
 			}
 
+			// Make sure that all the methods of the target type are mentioned in the protocol rules.
 			for function in target_type.methods {
 				if function.name !in mentioned_methods {
 					return error('Method ${function.name} is not mentioned in the protocol.')
@@ -101,23 +101,49 @@ fn start(command cli.Command) ! {
 				}
 			}
 
-			automata := TypestateAutomata.build(discovered_protocol)!
-			dump(automata)
+			original_automata = TypestateAutomata.build(discovered_protocol)!
 		}
 	}
 	println("\n\nFinding the main function' statements:")
 	main_fn := context.builder.table.fns['main.main']
 
-	main_statements := context.get_statements_for(main_fn)!
+	main_statements, main_file := context.get_statements_for(main_fn)!
+
+	mut reference_map := map[string]TypestateAutomata{}
 
 	for statement in main_statements {
-		print(statement.type_name())
-		println('\t' + statement.str())
+		if statement is ast.AssignStmt && (statement.op == .decl_assign || statement.op == .assign)
+			&& statement.right_types.len == 1 {
+			assigned_type := statement.right_types[0]
+			if assigned_type == target_type.idx {
+				// We found a target type being instantiated
+				identifier := (statement.left[0] as ast.Ident).name
 
-		if statement is ast.AssignStmt {
-			println(statement.op)
-			println(statement.right_types.map(it.str()))
+				if statement.op == .decl_assign && identifier in reference_map {
+					return error('Cannot perform re-declaration.')
+				}
+
+				reference_map[identifier] = original_automata.clone()
+			}
+		} else if statement is ast.ExprStmt && !statement.is_expr && statement.expr is ast.CallExpr
+			&& (statement.expr as ast.CallExpr).left_type == target_type.idx {
+			call_expr := statement.expr as ast.CallExpr
+			identifier := (call_expr.left as ast.Ident).name
+
+			if identifier !in reference_map {
+				return error('Instance of ${target_type.name} identified as ${identifier} is not initialized.')
+			}
+
+			mut automata := reference_map[identifier]!
+
+			automata.accept('${just_name}.${call_expr.name}') or {
+				return error(serialise_state_error(err, main_file, call_expr.pos.line_nr))
+			}
+
+			// update the automata in the map
+			reference_map[identifier] = automata
 		}
+		// TODO: Handle static functions
 	}
 }
 

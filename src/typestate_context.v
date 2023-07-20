@@ -126,7 +126,11 @@ fn serialise_warnings(warnings []errors.Warning) string {
 	return output.str()
 }
 
-fn (context TypestateContext) get_statements_for(function ast.Fn) ![]ast.Stmt {
+fn serialise_state_error(err IError, file string, line int) string {
+	return 'Typestate error: ${err.msg()}\n' + '\tFile: ${file}\n' + '\tLine: ${line + 1}\n'
+}
+
+fn (context TypestateContext) get_statements_for(function ast.Fn) !([]ast.Stmt, string) {
 	// Find the ast in the parsed files
 	target_file := function.file
 	target_ast := context.path_ast_map[target_file] or {
@@ -136,7 +140,7 @@ fn (context TypestateContext) get_statements_for(function ast.Fn) ![]ast.Stmt {
 	// Find the function in the AST
 	for statement in target_ast.stmts {
 		if statement is ast.FnDecl && statement.name == function.name {
-			return statement.stmts
+			return statement.stmts, target_file
 		}
 	}
 
@@ -277,6 +281,8 @@ struct TypestateAutomata {
 	states        []TypestateState
 	initial_state TypestateState
 	transitions   map[string]TypestateTransition
+mut:
+	current TypestateState
 }
 
 fn TypestateAutomata.build(protocol TypestateProtocol) !TypestateAutomata {
@@ -286,6 +292,7 @@ fn TypestateAutomata.build(protocol TypestateProtocol) !TypestateAutomata {
 	mut transitions := map[string]TypestateTransition{}
 
 	for rule in rules {
+		// TODO: Generate correct key for static functions
 		key := '${rule.start.name} + ${rule.stimulus}'
 		if key in transitions {
 			return error('Found duplicate transition: ${key}')
@@ -301,5 +308,29 @@ fn TypestateAutomata.build(protocol TypestateProtocol) !TypestateAutomata {
 		states: states
 		initial_state: states[0]
 		transitions: transitions
+		current: states[0]
 	}
+}
+
+fn (automata TypestateAutomata) clone() TypestateAutomata {
+	states_copy := automata.states.clone()
+	return TypestateAutomata{
+		states: states_copy
+		initial_state: states_copy[0]
+		transitions: automata.transitions.clone()
+		current: states_copy[0]
+	}
+}
+
+fn (mut automata TypestateAutomata) accept(function string) ! {
+	key := '${automata.current.name} + ${function}'
+	if automata.current != automata.transitions[key].start {
+		return error('Current state is ${automata.current.name}. Transition "${key}" not accepted.')
+	}
+	if key !in automata.transitions {
+		return error('Invalid transition: ${key}')
+	}
+
+	transition := automata.transitions[key]
+	automata.current = transition.end
 }
