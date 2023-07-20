@@ -42,7 +42,8 @@ fn (protocol TypestateProtocol) has_state(state TypestateState) bool {
 struct TypestateContext {
 	directory string
 mut:
-	builder builder.Builder
+	builder      builder.Builder
+	path_ast_map map[string]&ast.File
 }
 
 fn TypestateContext.generate_context(directory string) !TypestateContext {
@@ -74,6 +75,11 @@ fn TypestateContext.generate_context(directory string) !TypestateContext {
 
 	// Parse all imports
 	context.builder.parse_imports()
+
+	// Add the ASTs in a map for easy lookup
+	for ast in context.builder.parsed_files {
+		context.path_ast_map[ast.path] = ast
+	}
 
 	return context
 }
@@ -118,6 +124,23 @@ fn serialise_warnings(warnings []errors.Warning) string {
 	}
 
 	return output.str()
+}
+
+fn (context TypestateContext) get_statements_for(function ast.Fn) ![]ast.Stmt {
+	// Find the ast in the parsed files
+	target_file := function.file
+	target_ast := context.path_ast_map[target_file] or {
+		return error('Unable to find file ${target_file}.')
+	}
+
+	// Find the function in the AST
+	for statement in target_ast.stmts {
+		if statement is ast.FnDecl && statement.name == function.name {
+			return statement.stmts
+		}
+	}
+
+	return error('Unable to find function ${function.name} in file ${target_file}.')
 }
 
 fn extract_rule(fields []ast.StructInitField) !TypestateRule {
