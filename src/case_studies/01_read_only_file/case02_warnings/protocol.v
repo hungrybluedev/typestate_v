@@ -25,8 +25,14 @@ const protocol = tpstv.Protocol[ReadOnlyFile, FileStates]{
 			stimulus: 'ReadOnlyFile.read_line'
 		},
 		tpstv.Rule[FileStates]{
-			name: 'Close File'
+			name: 'Close File from reading'
 			start: .reading
+			end: .closed
+			stimulus: 'ReadOnlyFile.close'
+		},
+		tpstv.Rule[FileStates]{
+			name: 'Close File from open'
+			start: .open
 			end: .closed
 			stimulus: 'ReadOnlyFile.close'
 		},
