@@ -109,7 +109,7 @@ fn start(command cli.Command) ! {
 
 	main_statements, main_file := context.get_statements_for(main_fn)!
 
-	mut reference_map := map[string]TypestateAutomata{}
+	mut reference_map := map[string]&TypestateAutomata{}
 
 	for statement in main_statements {
 		if statement is ast.AssignStmt && (statement.op == .decl_assign || statement.op == .assign)
@@ -123,7 +123,17 @@ fn start(command cli.Command) ! {
 					return error('Cannot perform re-declaration.')
 				}
 
-				reference_map[identifier] = original_automata.clone()
+				mut automata := original_automata.clone_ref()
+				reference_map[identifier] = automata
+
+				right_expression := statement.right[0]
+				if right_expression is ast.CallExpr {
+					call_expr := right_expression as ast.CallExpr
+
+					automata.accept('${just_name}.${call_expr.name}') or {
+						return error(serialise_state_error(err, main_file, call_expr.pos.line_nr))
+					}
+				}
 			}
 		} else if statement is ast.ExprStmt && !statement.is_expr && statement.expr is ast.CallExpr
 			&& (statement.expr as ast.CallExpr).left_type == target_type.idx {
@@ -134,14 +144,16 @@ fn start(command cli.Command) ! {
 				return error('Instance of ${target_type.name} identified as ${identifier} is not initialized.')
 			}
 
-			mut automata := reference_map[identifier]!
+			mut automata := reference_map[identifier] or {
+				return error('Could not find the automata for ${identifier}.')
+			}
 
 			automata.accept('${just_name}.${call_expr.name}') or {
 				return error(serialise_state_error(err, main_file, call_expr.pos.line_nr))
 			}
 
 			// update the automata in the map
-			reference_map[identifier] = automata
+			// reference_map[identifier] = automata
 		}
 		// TODO: Handle static functions
 	}
