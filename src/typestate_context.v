@@ -312,9 +312,9 @@ fn TypestateAutomata.build(protocol TypestateProtocol) !TypestateAutomata {
 	}
 }
 
-fn (automata TypestateAutomata) clone() TypestateAutomata {
+fn (automata TypestateAutomata) clone_ref() &TypestateAutomata {
 	states_copy := automata.states.clone()
-	return TypestateAutomata{
+	return &TypestateAutomata{
 		states: states_copy
 		initial_state: states_copy[0]
 		transitions: automata.transitions.clone()
@@ -323,7 +323,14 @@ fn (automata TypestateAutomata) clone() TypestateAutomata {
 }
 
 fn (mut automata TypestateAutomata) accept(function string) ! {
-	key := '${automata.current.name} + ${function}'
+	// Check if it is a static function
+	actual_name := if function.contains('__static__') {
+		function.all_before('.') + '.static.' + function.all_after('__static__')
+	} else {
+		function
+	}
+
+	key := '${automata.current.name} + ${actual_name}'
 	if automata.current != automata.transitions[key].start {
 		return error('Current state is ${automata.current.name}. Transition "${key}" not accepted.')
 	}
