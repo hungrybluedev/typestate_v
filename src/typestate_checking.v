@@ -65,6 +65,9 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 		// println('${statement.type_name()}\t${statement}')
 
 		match statement {
+			ast.BranchStmt {
+				// Do nothing
+			}
 			ast.Block {
 				context.check_statements(statement.stmts, fn_file)!
 			}
@@ -84,6 +87,7 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 					right_expression := statement.right[0]
 					if right_expression is ast.CallExpr {
 						call_expr := right_expression as ast.CallExpr
+						context.check_expression(call_expr.or_block, fn_file)!
 
 						automata.accept('${context.just_name}.${call_expr.name}') or {
 							return error(serialise_state_error(err, fn_file, call_expr.pos.line_nr))
@@ -161,6 +165,7 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 		}
 		ast.CallExpr {
 			call_expr := expression as ast.CallExpr
+			context.check_expression(call_expr.or_block, fn_file)!
 			if call_expr.left_type == context.target_type.idx {
 				identifier := (call_expr.left as ast.Ident).name
 
