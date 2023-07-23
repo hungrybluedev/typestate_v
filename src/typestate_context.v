@@ -48,6 +48,7 @@ mut:
 	target_type         &ast.TypeSymbol    = unsafe { nil }
 	original_automata   &TypestateAutomata = unsafe { nil }
 	just_name           string
+	reference_map       map[string]&TypestateAutomata = map[string]&TypestateAutomata{}
 }
 
 fn TypestateContext.generate_context(directory string) !TypestateContext {
@@ -69,13 +70,13 @@ fn TypestateContext.generate_context(directory string) !TypestateContext {
 	// Set the module lookup paths for recursive import resolution
 	context.builder.set_module_lookup_paths()
 
-	println('Parsing all provided source files.')
+	// println('Parsing all provided source files.')
 
 	// Parse all initial files
 	context.builder.parsed_files = parser.parse_files(source_files, context.builder.table,
 		context.builder.pref)
 
-	println('Parsing imports.')
+	// println('Parsing imports.')
 
 	// Parse all imports
 	context.builder.parse_imports()
@@ -89,10 +90,10 @@ fn TypestateContext.generate_context(directory string) !TypestateContext {
 }
 
 fn (mut context TypestateContext) precheck() ! {
-	println('Transforming generic constructs.')
+	// println('Transforming generic constructs.')
 	context.builder.table.generic_insts_to_concrete()
 
-	println('Checking files.')
+	// println('Checking files.')
 	context.builder.checker.check_files(context.builder.parsed_files)
 
 	if context.builder.checker.errors.len > 0 {
@@ -103,7 +104,7 @@ fn (mut context TypestateContext) precheck() ! {
 		return error('Standard checking produced the following warnings:\n${serialise_warnings(context.builder.checker.warnings)}')
 	}
 
-	println('Standard checking passed')
+	// println('Standard checking passed')
 }
 
 fn serialise_errors(errs []errors.Error) string {
