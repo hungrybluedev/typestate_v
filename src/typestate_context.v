@@ -173,6 +173,20 @@ fn (context TypestateContext) get_statements_for(function ast.Fn) !([]ast.Stmt, 
 	return error('Unable to find function ${function.name} in file ${target_file}.')
 }
 
+fn (mut context TypestateContext) clone() !TypestateContext {
+	return TypestateContext{
+		directory: context.directory
+		builder: context.builder
+		path_ast_map: context.path_ast_map.clone()
+		discovered_protocol: context.discovered_protocol
+		target_type: context.target_type
+		original_automata: context.original_automata.clone_ref()
+		just_name: context.just_name
+		reference_map: context.reference_map.clone()
+		visited_functions: context.visited_functions.clone()
+	}
+}
+
 fn extract_rule(fields []ast.StructInitField) !TypestateRule {
 	mut rule_name := 'Not found'
 	mut stimulus := 'Not found'
