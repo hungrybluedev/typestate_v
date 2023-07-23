@@ -49,11 +49,25 @@ fn (mut context TypestateContext) validate_protocol() ! {
 	}
 }
 
+fn prevent_regression(before_states map[string]TypestateState, after_states map[string]TypestateState) ! {
+	if before_states != after_states {
+		// Ensure that we have not regressed
+		for ref, state in before_states {
+			if state.index > after_states[ref].index {
+				return error('State of ${ref} has regressed from ${state} to ${after_states[ref]}.')
+			}
+		}
+	}
+}
+
 fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_file string) ! {
 	for statement in statements {
 		// println('${statement.type_name()}\t${statement}')
 
 		match statement {
+			ast.Block {
+				context.check_statements(statement.stmts, fn_file)!
+			}
 			ast.AssignStmt {
 				if statement.right_types.len == 1
 					&& statement.right_types[0] == context.target_type.idx {
@@ -85,12 +99,20 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 				context.check_expression(statement.expr, fn_file)!
 			}
 			ast.ForStmt {
+				before_states := context.get_reference_states()
 				context.check_statements(statement.stmts, fn_file)!
+				after_states := context.get_reference_states()
+
+				// Check if the states have changed
+				prevent_regression(before_states, after_states)!
 			}
 			ast.Return {
 				for expr in statement.exprs {
 					context.check_expression(expr, fn_file)!
 				}
+			}
+			ast.DeferStmt {
+				context.check_statements(statement.stmts, fn_file)!
 			}
 			else {
 				// unsupported statement type
@@ -102,6 +124,41 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 
 fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file string) ! {
 	match expression {
+		ast.BoolLiteral, ast.IntegerLiteral, ast.FloatLiteral, ast.StringLiteral, ast.CharLiteral,
+		ast.EmptyExpr, ast.Ident, ast.AtExpr {
+			// Do nothing for literals, empty expression and identifiers
+		}
+		ast.OrExpr {
+			context.check_statements(expression.stmts, fn_file)!
+		}
+		ast.InfixExpr {
+			context.check_expression(expression.left, fn_file)!
+			context.check_expression(expression.right, fn_file)!
+			context.check_expression(expression.or_block, fn_file)!
+		}
+		ast.SelectorExpr {
+			context.check_expression(expression.expr, fn_file)!
+			context.check_expression(expression.or_block, fn_file)!
+		}
+		ast.CastExpr {
+			context.check_expression(expression.arg, fn_file)!
+			context.check_expression(expression.expr, fn_file)!
+		}
+		ast.PrefixExpr {
+			context.check_expression(expression.right, fn_file)!
+			context.check_expression(expression.or_block, fn_file)!
+		}
+		ast.PostfixExpr {
+			context.check_expression(expression.expr, fn_file)!
+		}
+		ast.UnsafeExpr {
+			context.check_expression(expression.expr, fn_file)!
+		}
+		ast.StructInit {
+			for field_expr in expression.init_fields {
+				context.check_expression(field_expr.expr, fn_file)!
+			}
+		}
 		ast.CallExpr {
 			call_expr := expression as ast.CallExpr
 			if call_expr.left_type == context.target_type.idx {
@@ -139,6 +196,11 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 
 					// Remove the sub-automata
 					context.reference_map.delete(receiver_name)
+
+					// If the name was same, restore the original automata
+					if receiver_name == identifier {
+						context.reference_map[identifier] = automata
+					}
 				}
 			} else {
 				// It was not a method. Check everything
@@ -152,9 +214,38 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 				}
 			}
 		}
+		ast.ArrayInit {
+			// Check the exprs, len_expr, cap_expr, and default_expr
+			for expr in expression.exprs {
+				context.check_expression(expr, fn_file)!
+			}
+			context.check_expression(expression.len_expr, fn_file)!
+			context.check_expression(expression.cap_expr, fn_file)!
+			context.check_expression(expression.default_expr, fn_file)!
+		}
+		ast.StringInterLiteral {
+			// Check the exprs
+			for expr in expression.exprs {
+				context.check_expression(expr, fn_file)!
+			}
+		}
+		ast.IfExpr {
+			for branch in expression.branches {
+				// Check the condition
+				context.check_expression(branch.cond, fn_file)!
+
+				// Check the statements
+				context.check_statements(branch.stmts, fn_file)!
+			}
+		}
 		else {
+			// Skip the unsupported expressions
+			if expression.str().contains('unknown') {
+				return
+			}
 			// unsupported expression type
 			println('UNSUPPORTED: ${expression.type_name()}\t${expression}')
+			// dump(expression.str().contains('unknown'))
 		}
 	}
 }
