@@ -42,8 +42,12 @@ fn (protocol TypestateProtocol) has_state(state TypestateState) bool {
 struct TypestateContext {
 	directory string
 mut:
-	builder      builder.Builder
-	path_ast_map map[string]&ast.File
+	builder             builder.Builder
+	path_ast_map        map[string]&ast.File
+	discovered_protocol TypestateProtocol
+	target_type         &ast.TypeSymbol    = unsafe { nil }
+	original_automata   &TypestateAutomata = unsafe { nil }
+	just_name           string
 }
 
 fn TypestateContext.generate_context(directory string) !TypestateContext {
