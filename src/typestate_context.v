@@ -42,13 +42,17 @@ fn (protocol TypestateProtocol) has_state(state TypestateState) bool {
 struct TypestateContext {
 	directory string
 mut:
-	builder             builder.Builder
-	path_ast_map        map[string]&ast.File
-	discovered_protocol TypestateProtocol
-	target_type         &ast.TypeSymbol    = unsafe { nil }
-	original_automata   &TypestateAutomata = unsafe { nil }
-	just_name           string
-	reference_map       map[string]&TypestateAutomata = map[string]&TypestateAutomata{}
+	builder      builder.Builder      // For parsing and checking
+	path_ast_map map[string]&ast.File // For easy lookup of ASTs
+
+	discovered_protocol TypestateProtocol  // The protocol that was discovered
+	target_type         &ast.TypeSymbol    = unsafe { nil } // The type that is targeted
+	original_automata   &TypestateAutomata = unsafe { nil } // The automata that was generated from the protocol
+	just_name           string // The simplified name of the target type
+	// All references have independent automata
+	reference_map map[string]&TypestateAutomata = map[string]&TypestateAutomata{}
+	// Avoid revisiting the same functions
+	visited_functions map[string]bool = map[string]bool{}
 }
 
 fn TypestateContext.generate_context(directory string) !TypestateContext {
@@ -282,6 +286,7 @@ struct TypestateTransition {
 	end      TypestateState
 }
 
+[heap]
 struct TypestateAutomata {
 	states        []TypestateState
 	initial_state TypestateState
@@ -297,7 +302,6 @@ fn TypestateAutomata.build(protocol TypestateProtocol) !TypestateAutomata {
 	mut transitions := map[string]TypestateTransition{}
 
 	for rule in rules {
-		// TODO: Generate correct key for static functions
 		key := '${rule.start.name} + ${rule.stimulus}'
 		if key in transitions {
 			return error('Found duplicate transition: ${key}')
