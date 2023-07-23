@@ -235,12 +235,33 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 			}
 		}
 		ast.IfExpr {
+			before_states := context.get_reference_states()
 			for branch in expression.branches {
 				// Check the condition
-				context.check_expression(branch.cond, fn_file)!
+				mut copy_context := context.clone()!
+				copy_context.check_expression(branch.cond, fn_file)!
 
 				// Check the statements
-				context.check_statements(branch.stmts, fn_file)!
+				copy_context.check_statements(branch.stmts, fn_file)!
+				after_states := copy_context.get_reference_states()
+				prevent_regression(before_states, after_states)!
+			}
+		}
+		ast.MatchExpr {
+			// Check the condition
+			context.check_expression(expression.cond, fn_file)!
+			before_states := context.get_reference_states()
+
+			// Check the branches
+			for branch in expression.branches {
+				mut copy_context := context.clone()!
+
+				for expr in branch.exprs {
+					copy_context.check_expression(expr, fn_file)!
+				}
+				copy_context.check_statements(branch.stmts, fn_file)!
+				after_states := copy_context.get_reference_states()
+				prevent_regression(before_states, after_states)!
 			}
 		}
 		else {
