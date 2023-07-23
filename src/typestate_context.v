@@ -8,7 +8,8 @@ import v.parser
 import strings
 
 struct TypestateState {
-	name string
+	index int
+	name  string
 }
 
 struct TypestateRule {
@@ -111,6 +112,16 @@ fn (mut context TypestateContext) precheck() ! {
 	// println('Standard checking passed')
 }
 
+fn (context TypestateContext) get_reference_states() map[string]TypestateState {
+	mut states := map[string]TypestateState{}
+
+	for ref, automata in context.reference_map {
+		states[ref] = automata.current
+	}
+
+	return states
+}
+
 fn serialise_errors(errs []errors.Error) string {
 	mut output := strings.new_builder(errs.len * 128)
 
@@ -149,7 +160,13 @@ fn (context TypestateContext) get_statements_for(function ast.Fn) !([]ast.Stmt, 
 	// Find the function in the AST
 	for statement in target_ast.stmts {
 		if statement is ast.FnDecl && statement.name == function.name {
-			return statement.stmts, target_file
+			mut original_statements := statement.stmts.clone()
+
+			for ds in statement.defer_stmts {
+				original_statements << ds.stmts
+			}
+
+			return original_statements, target_file
 		}
 	}
 
@@ -228,9 +245,10 @@ fn extract_protocol(protocol_statements []ast.Stmt) !TypestateProtocol {
 			}
 
 			// Extract all the enum values
-			for state in statement.fields {
+			for index, state in statement.fields {
 				discovered_states << TypestateState{
 					name: state.name
+					index: index
 				}
 			}
 
