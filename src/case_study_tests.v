@@ -16,7 +16,11 @@ const (
 		os.join_path('02_speaker', 'case02_warnings'),
 		os.join_path('02_speaker', 'case03_normal'),
 		os.join_path('02_speaker', 'case04_invalid'),
-		// RNG
+		// Histogram
+		os.join_path('03_histogram', 'case01_errors'),
+		os.join_path('03_histogram', 'case02_warnings'),
+		os.join_path('03_histogram', 'case03_normal'),
+		os.join_path('03_histogram', 'case04_invalid'),
 	]
 )
 

@@ -1,0 +1,3 @@
+Typestate error: Current state is ready. Transition "ready + Histogram.print" not accepted.
+	File: src\case_studies\03_histogram\case04_invalid\rng.v
+	Line: 103
