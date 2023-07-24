@@ -110,6 +110,16 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 				// Check if the states have changed
 				prevent_regression(before_states, after_states)!
 			}
+			ast.ForInStmt {
+				before_states := context.get_reference_states()
+
+				context.check_expression(statement.cond, fn_file)!
+				context.check_expression(statement.high, fn_file)!
+				context.check_statements(statement.stmts, fn_file)!
+
+				after_states := context.get_reference_states()
+				prevent_regression(before_states, after_states)!
+			}
 			ast.Return {
 				for expr in statement.exprs {
 					context.check_expression(expr, fn_file)!
@@ -156,6 +166,14 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 			context.check_expression(expression.expr, fn_file)!
 		}
 		ast.UnsafeExpr {
+			context.check_expression(expression.expr, fn_file)!
+		}
+		ast.IndexExpr {
+			context.check_expression(expression.index, fn_file)!
+			context.check_expression(expression.left, fn_file)!
+			context.check_expression(expression.or_expr, fn_file)!
+		}
+		ast.ParExpr {
 			context.check_expression(expression.expr, fn_file)!
 		}
 		ast.StructInit {
