@@ -21,6 +21,11 @@ const (
 		os.join_path('03_histogram', 'case02_warnings'),
 		os.join_path('03_histogram', 'case03_normal'),
 		os.join_path('03_histogram', 'case04_invalid'),
+		// Email API
+		os.join_path('04_email_api', 'case01_errors'),
+		os.join_path('04_email_api', 'case02_warnings'),
+		os.join_path('04_email_api', 'case03_normal'),
+		os.join_path('04_email_api', 'case04_invalid'),
 	]
 )
 

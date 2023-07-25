@@ -1,0 +1,4 @@
+Standard checking produced the following warnings:
+1: unused variable: `reply_to`
+	File: src/case_studies/04_email_api/case02_warnings/email.v
+	Line: 129

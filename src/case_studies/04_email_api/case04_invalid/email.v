@@ -80,7 +80,7 @@ pub fn (service Service) send_mail(mail Mail) ! {
 		sender: service.sender
 	})
 
-	mut request := http.Request{
+	request := http.Request{
 		method: .post
 		header: http.new_custom_header_from_map({
 			http.CommonHeader.accept.str():       'application/json'
@@ -109,15 +109,16 @@ fn main() {
 	println('-------------------------\n\n')
 
 	println('Loading config file...')
-	service := Service.from_config()!
+	mut service := Service.from_config()!
 	println('Config file loaded successfully.\n')
 
-	println('Adding sender details...')
-	service.add_sender(Person{
-		email: from_email
-		name: from_name
-	})!
-	println('Sender details added successfully.\n')
+	// We forgot to add the sender details
+	// println('Adding sender details...')
+	// service.add_sender(Person{
+	// 	email: from_email
+	// 	name: from_name
+	// })!
+	// println('Sender details added successfully.\n')
 
 	println('Type exit to exit the program.\n')
 
