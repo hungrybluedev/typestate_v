@@ -54,6 +54,8 @@ mut:
 	reference_map map[string]&TypestateAutomata = map[string]&TypestateAutomata{}
 	// Avoid revisiting the same functions
 	visited_functions map[string]bool = map[string]bool{}
+	// Unsupported expressions and statements encountered
+	unsupported_count int
 }
 
 fn TypestateContext.generate_context(directory string) !TypestateContext {

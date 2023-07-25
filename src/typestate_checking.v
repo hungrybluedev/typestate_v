@@ -131,6 +131,7 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 			else {
 				// unsupported statement type
 				println('UNSUPPORTED: ${statement.type_name()}\t${statement}')
+				context.unsupported_count++
 			}
 		}
 	}
@@ -139,7 +140,7 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file string) ! {
 	match expression {
 		ast.BoolLiteral, ast.IntegerLiteral, ast.FloatLiteral, ast.StringLiteral, ast.CharLiteral,
-		ast.EmptyExpr, ast.Ident, ast.AtExpr {
+		ast.EmptyExpr, ast.Ident, ast.AtExpr, ast.EnumVal, ast.TypeNode, ast.ComptimeType {
 			// Do nothing for literals, empty expression and identifiers
 		}
 		ast.OrExpr {
@@ -246,6 +247,14 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 			context.check_expression(expression.cap_expr, fn_file)!
 			context.check_expression(expression.default_expr, fn_file)!
 		}
+		ast.MapInit {
+			for expr in expression.keys {
+				context.check_expression(expr, fn_file)!
+			}
+			for expr in expression.vals {
+				context.check_expression(expr, fn_file)!
+			}
+		}
 		ast.StringInterLiteral {
 			// Check the exprs
 			for expr in expression.exprs {
@@ -289,6 +298,7 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 			}
 			// unsupported expression type
 			println('UNSUPPORTED: ${expression.type_name()}\t${expression}')
+			context.unsupported_count++
 			// dump(expression.str().contains('unknown'))
 		}
 	}

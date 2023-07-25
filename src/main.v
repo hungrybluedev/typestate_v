@@ -42,6 +42,12 @@ fn start(command cli.Command) ! {
 	main_fn := context.builder.table.fns['main.main']
 
 	context.check_function(main_fn)!
+
+	// Print a notice if we found unsupported features
+	if context.unsupported_count > 0 {
+		println('\n\nFound ${context.unsupported_count} unsupported features.')
+		println('Please contact Subhomoy Haldar (@hungrybluedev) on Discord or open an issue on GitHub.')
+	}
 }
 
 fn main() {
