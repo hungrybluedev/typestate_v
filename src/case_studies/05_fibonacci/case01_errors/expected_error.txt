@@ -1,0 +1,7 @@
+Standard checking failed with the following errors:
+1: `fib` is immutable, declare it with `mut` to make it mutable
+	File: src/case_studies/05_fibonacci/case01_errors/fib.v
+	Line: 16
+2: unwrapped Result cannot be used in an infix expression
+	File: src/case_studies/05_fibonacci/case01_errors/fib.v
+	Line: 38
