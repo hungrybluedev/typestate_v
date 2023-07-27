@@ -40,6 +40,34 @@ fn (protocol TypestateProtocol) has_state(state TypestateState) bool {
 	return false
 }
 
+fn (protocol TypestateProtocol) get_dot() string {
+	mut output := strings.new_builder(1024)
+
+	mut graph_name := []u8{}
+
+	for ch in protocol.name {
+		if ch.is_alnum() {
+			graph_name << ch
+		}
+	}
+
+	output.write_string('digraph ${graph_name.bytestr()} {\n')
+	output.write_string('\tfontname="Helvetica,Arial,sans-serif";\n')
+	output.write_string('\tnode [fontname="Helvetica,Arial,sans-serif"];\n')
+	output.write_string('\tedge [fontname="Helvetica,Arial,sans-serif"];\n')
+	output.write_string('\trankdir=LR;\n\tnodesep=1.5;\n')
+
+	output.write_string('\tnode [shape=circle];\n')
+
+	for rule in protocol.rules {
+		output.write_string('	${rule.start.name} -> ${rule.end.name} [label="${rule.stimulus}"];\n')
+	}
+
+	output.write_string('}')
+
+	return output.str()
+}
+
 [heap]
 struct TypestateContext {
 	directory string
@@ -99,7 +127,7 @@ fn TypestateContext.generate_context(directory string) !TypestateContext {
 
 	// Add the ASTs in a map for easy lookup
 	for ast in context.builder.parsed_files {
-		context.path_ast_map[ast.path] = ast
+		context.path_ast_map[os.real_path(ast.path)] = ast
 	}
 
 	return context
@@ -163,7 +191,7 @@ fn serialise_state_error(err IError, file string, line int) string {
 
 fn (context TypestateContext) get_statements_for(function ast.Fn) !([]ast.Stmt, string) {
 	// Find the ast in the parsed files
-	target_file := function.file
+	target_file := os.real_path(function.file)
 	target_ast := context.path_ast_map[target_file] or {
 		return error('Unable to find file ${target_file}.')
 	}

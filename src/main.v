@@ -3,7 +3,7 @@ module main
 import os
 import cli
 
-fn start(command cli.Command) ! {
+fn first_steps(command cli.Command) !TypestateContext {
 	// We are guaranteed that at least one argument is present
 	directory := command.args[0]
 
@@ -39,6 +39,12 @@ fn start(command cli.Command) ! {
 
 	context.validate_protocol()!
 
+	return context
+}
+
+fn start(command cli.Command) ! {
+	mut context := first_steps(command)!
+
 	main_fn := context.builder.table.fns['main.main']
 
 	context.check_function(main_fn)!
@@ -65,6 +71,11 @@ fn main() {
 				name: 'case-study'
 				description: 'Run the TSCV on the listed case studies.'
 				execute: run_for_case_studies
+			},
+			cli.Command{
+				name: 'viz'
+				description: 'Visualize the typestate graph for the given directory.'
+				execute: visualize
 			},
 		]
 	}
