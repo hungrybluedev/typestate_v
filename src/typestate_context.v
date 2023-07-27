@@ -164,10 +164,8 @@ fn (context TypestateContext) get_reference_states() map[string]TypestateState {
 fn serialise_errors(errs []errors.Error) string {
 	mut output := strings.new_builder(errs.len * 128)
 
-	for index, err in errs {
-		output.write_string('${index + 1}: ${err.message}\n')
-		output.write_string('	File: ${err.file_path}\n')
-		output.write_string('	Line: ${err.pos.line_nr + 1}\n')
+	for err in errs {
+		output.write_string('${err.file_path}:${err.pos.line_nr + 1}: ${err.message}\n')
 	}
 
 	return output.str()
@@ -176,17 +174,16 @@ fn serialise_errors(errs []errors.Error) string {
 fn serialise_warnings(warnings []errors.Warning) string {
 	mut output := strings.new_builder(warnings.len * 128)
 
-	for index, warning in warnings {
-		output.write_string('${index + 1}: ${warning.message}\n')
-		output.write_string('	File: ${warning.file_path}\n')
-		output.write_string('	Line: ${warning.pos.line_nr + 1}\n')
+	for warning in warnings {
+		output.write_string('${warning.file_path}:${warning.pos.line_nr + 1}: ${warning.message}\n')
 	}
 
 	return output.str()
 }
 
 fn serialise_state_error(err IError, file string, line int) string {
-	return 'Typestate error: ${err.msg()}\n' + '\tFile: ${file}\n' + '\tLine: ${line + 1}\n'
+	short_file := file.all_after(@VMODROOT + os.path_separator)
+	return '${short_file}:${line + 1}: ${err.msg()}\n'
 }
 
 fn (context TypestateContext) get_statements_for(function ast.Fn) !([]ast.Stmt, string) {

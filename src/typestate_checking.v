@@ -90,7 +90,8 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 						context.check_expression(call_expr.or_block, fn_file)!
 
 						automata.accept('${context.just_name}.${call_expr.name}') or {
-							return error(serialise_state_error(err, fn_file, call_expr.pos.line_nr))
+							return error('Typestate checker error:\n' +
+								serialise_state_error(err, fn_file, call_expr.pos.line_nr))
 						}
 					}
 				} else {
@@ -197,7 +198,8 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 				}
 
 				automata.accept('${context.just_name}.${call_expr.name}') or {
-					return error(serialise_state_error(err, fn_file, call_expr.pos.line_nr))
+					return error('Typestate checker error:\n' +
+						serialise_state_error(err, fn_file, call_expr.pos.line_nr))
 				}
 
 				// Check the statements inside the method
