@@ -81,6 +81,7 @@ fn TypestateContext.generate_context(directory string) !TypestateContext {
 	// source_files << context.builder.v_files_from_dir(os.real_path(directory))
 
 	// Set the module lookup paths for recursive import resolution
+	// context.builder.module_search_paths << @VEXEROOT
 	context.builder.set_module_lookup_paths()
 
 	// println('Parsing all provided source files.')
@@ -93,6 +94,8 @@ fn TypestateContext.generate_context(directory string) !TypestateContext {
 
 	// Parse all imports
 	context.builder.parse_imports()
+
+	// dump(context.builder.parsed_files.map(it.path))
 
 	// Add the ASTs in a map for easy lookup
 	for ast in context.builder.parsed_files {
