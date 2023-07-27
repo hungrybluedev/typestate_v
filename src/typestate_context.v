@@ -5,6 +5,7 @@ import v.builder
 import v.errors
 import v.pref as preferences
 import v.parser
+import os
 import strings
 
 struct TypestateState {
@@ -68,11 +69,16 @@ fn TypestateContext.generate_context(directory string) !TypestateContext {
 		})
 	}
 
+	// os.chdir(@VEXEROOT)!
+
 	// module builtin is always implicitly imported
-	mut source_files := context.builder.get_builtin_files()
+	// mut source_files := context.builder.get_builtin_files()
+	mut source_files := context.builder.v_files_from_dir(os.join_path(@VEXEROOT, 'vlib',
+		'builtin'))
 
 	// All "user" files are obtained from the directory set in the preferences
 	source_files << context.builder.get_user_files()
+	// source_files << context.builder.v_files_from_dir(os.real_path(directory))
 
 	// Set the module lookup paths for recursive import resolution
 	context.builder.set_module_lookup_paths()

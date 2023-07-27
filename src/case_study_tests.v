@@ -26,13 +26,20 @@ const (
 		os.join_path('04_email_api', 'case02_warnings'),
 		os.join_path('04_email_api', 'case03_normal'),
 		os.join_path('04_email_api', 'case04_invalid'),
+		// Fibonacci
+		os.join_path('05_fibonacci', 'case01_errors'),
+		os.join_path('05_fibonacci', 'case02_warnings'),
+		os.join_path('05_fibonacci', 'case03_normal'),
+		os.join_path('05_fibonacci', 'case04_invalid'),
 	]
 )
 
 fn run_for_case_studies(command cli.Command) ! {
 	mut count := 0
+	working_dir := os.getwd() + os.path_separator
+
 	for directory in case_study_directories {
-		path := os.join_path(case_study_location, directory)
+		path := os.join_path(os.real_path(case_study_location), directory)
 
 		println('\nRunning case study: typestate_v ${path}\n')
 
@@ -42,10 +49,20 @@ fn run_for_case_studies(command cli.Command) ! {
 
 		start(cli.Command{ args: [path] }) or {
 			// An error occurred. Check to see if it was expected.
+			// dump(err)
 
 			// To make the errors cross-platform, replace all forward slashes with the OS-specific separator.
 			expected_error := os.read_file(expected_error_path)!.replace('/', os.path_separator)
-			actual_error := err.str()
+
+			actual_error_raw := err.str()
+			// Normalise to get relative paths.
+			mut lines := actual_error_raw.split_into_lines()
+			for index, line in lines {
+				if line.starts_with('\tFile: ') {
+					lines[index] = '\tFile: ${line.all_after(working_dir)}'
+				}
+			}
+			actual_error := lines.join_lines() + '\n'
 
 			if expected_error != actual_error {
 				return error('Expected error:\n"${expected_error}"\n\nActual error:\n"${actual_error}"\n')

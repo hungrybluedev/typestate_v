@@ -26,7 +26,7 @@ fn start(command cli.Command) ! {
 
 	// We expect to find a protocol.v file in the directory
 	// If we don't find it, we return an error
-	protocol_file := context.path_ast_map[os.join_path(directory, 'protocol.v')] or {
+	protocol_file := context.path_ast_map[os.join_path(os.real_path(directory), 'protocol.v')] or {
 		return error('Could not open protocol file.')
 	}
 	protocol_statements := protocol_file.stmts
