@@ -3,6 +3,7 @@ main
 typestate_v
 *.exe
 *.exe~
+*.pdb
 *.so
 *.dylib
 *.dll
