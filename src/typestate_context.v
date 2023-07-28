@@ -417,7 +417,7 @@ fn (mut automata TypestateAutomata) accept(function string) ! {
 		function
 	}
 
-	automata.call_chain << function
+	automata.call_chain << actual_name
 
 	key := '${automata.current.name} + ${actual_name}'
 	if automata.current != automata.transitions[key].start {
