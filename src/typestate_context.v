@@ -370,8 +370,9 @@ struct TypestateAutomata {
 	initial_state TypestateState
 	transitions   map[string]TypestateTransition
 mut:
+	ref string
 	current    TypestateState
-	call_chain []string
+	call_chain []string = ['new instance']
 }
 
 fn TypestateAutomata.build(protocol TypestateProtocol) !TypestateAutomata {
@@ -423,7 +424,7 @@ fn (mut automata TypestateAutomata) accept(function string) ! {
 	key := '${automata.current.name} + ${actual_name}'
 	if automata.current != automata.transitions[key].start {
 		critical_path := automata.call_chain.join(' -> ')
-		return error('Current state is ${automata.current.name}. Transition "${key}" not accepted. Path taken: ${critical_path}')
+		return error('Current state for ${automata.ref} is ${automata.current.name}. Transition "${key}" not accepted. Path taken: ${critical_path}')
 	}
 	if key !in automata.transitions {
 		return error('Invalid transition: ${key}')
