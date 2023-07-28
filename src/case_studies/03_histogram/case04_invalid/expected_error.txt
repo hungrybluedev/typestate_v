@@ -1,2 +1,2 @@
 Typestate checker error:
-src\case_studies\03_histogram\case04_invalid\rng.v:103: Current state for hist is ready. Transition "ready + Histogram.print" not accepted. Path taken: new instance -> Histogram.static.with_bins -> Histogram.print
+src/case_studies/03_histogram/case04_invalid/rng.v:103: Current state for hist is ready. Transition "ready + Histogram.print" not accepted. Path taken: new instance -> Histogram.static.with_bins -> Histogram.print
