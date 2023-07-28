@@ -1,4 +1,2 @@
 Standard checking failed with the following errors:
-1: `service` is immutable, declare it with `mut` to make it mutable
-	File: src/case_studies/04_email_api/case01_errors/email.v
-	Line: 116
+src/case_studies/04_email_api/case01_errors/email.v:116: `service` is immutable, declare it with `mut` to make it mutable

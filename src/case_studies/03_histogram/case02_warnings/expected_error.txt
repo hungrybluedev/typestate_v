@@ -1,16 +1,6 @@
 Standard checking produced the following warnings:
-1: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-	File: src/case_studies/03_histogram/case02_warnings/rng.v
-	Line: 42
-2: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-	File: src/case_studies/03_histogram/case02_warnings/rng.v
-	Line: 45
-3: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-	File: src/case_studies/03_histogram/case02_warnings/rng.v
-	Line: 52
-4: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-	File: src/case_studies/03_histogram/case02_warnings/rng.v
-	Line: 54
-5: unused variable: `limit`
-	File: src/case_studies/03_histogram/case02_warnings/rng.v
-	Line: 97
+src/case_studies/03_histogram/case02_warnings/rng.v:42: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/03_histogram/case02_warnings/rng.v:45: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/03_histogram/case02_warnings/rng.v:52: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/03_histogram/case02_warnings/rng.v:54: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/03_histogram/case02_warnings/rng.v:97: unused variable: `limit`

@@ -1,7 +1,3 @@
 Standard checking produced the following warnings:
-1: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-	File: src/case_studies/05_fibonacci/case02_warnings/fib.v
-	Line: 21
-2: unused variable: `limit`
-	File: src/case_studies/05_fibonacci/case02_warnings/fib.v
-	Line: 46
+src/case_studies/05_fibonacci/case02_warnings/fib.v:21: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/05_fibonacci/case02_warnings/fib.v:46: unused variable: `limit`
