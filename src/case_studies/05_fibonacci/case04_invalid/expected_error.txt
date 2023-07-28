@@ -1,2 +1,2 @@
 Typestate checker error:
-src/case_studies/05_fibonacci/case04_invalid/fib.v:57: Current state is running. Transition "running + Fibonacci.prepare" not accepted. Path taken: new instance -> Fibonacci.nth -> Fibonacci.prepare
+src/case_studies/05_fibonacci/case04_invalid/fib.v:57: Current state for fib is running. Transition "running + Fibonacci.prepare" not accepted. Path taken: new instance -> Fibonacci.nth -> Fibonacci.nth -> Fibonacci.prepare

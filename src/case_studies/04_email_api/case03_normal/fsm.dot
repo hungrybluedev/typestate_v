@@ -1,0 +1,12 @@
+digraph EmailServiceProtocol {
+	label="Email Service Protocol";
+	fontname="Helvetica,Arial,sans-serif";
+	node [fontname="Helvetica,Arial,sans-serif"];
+	edge [fontname="Helvetica,Arial,sans-serif"];
+	rankdir=LR;
+	nodesep=1.5;
+	node [shape=circle,size=5];
+	uninitialized -> configured [label="static.from_config"];
+	configured -> sender_added [label="add_sender"];
+	sender_added -> sender_added [label="send_mail"];
+}

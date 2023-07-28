@@ -31,5 +31,12 @@ const protocol = tpstv.Protocol[Fibonacci, FibStates]{
 			end: .running
 			stimulus: 'Fibonacci.nth'
 		},
+		// Allow extracting more numbers once we're running
+		tpstv.Rule[FibStates]{
+			name: 'Generate nth number in the sequence once running'
+			start: .running
+			end: .running
+			stimulus: 'Fibonacci.nth'
+		}
 	]
 }

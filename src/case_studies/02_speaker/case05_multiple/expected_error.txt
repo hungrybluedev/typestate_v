@@ -1,0 +1,2 @@
+Typestate checker error:
+src/case_studies/02_speaker/case05_multiple/speaker.v:47: Current state for s2 is off. Transition "off + Speaker.turn_high" not accepted. Path taken: new instance -> Speaker.turn_on -> Speaker.turn_high -> Speaker.turn_low -> Speaker.turn_off -> Speaker.turn_on -> Speaker.turn_off -> Speaker.turn_high

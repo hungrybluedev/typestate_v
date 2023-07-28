@@ -11,4 +11,5 @@ digraph ReadonlyFileProtocol {
 	reading -> closed [label="close"];
 	open -> closed [label="close"];
 	unready -> closed [label="close"];
+	reading -> reading [label="read_line"];
 }

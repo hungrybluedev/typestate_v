@@ -43,5 +43,12 @@ const protocol = tpstv.Protocol[ReadOnlyFile, FileStates]{
 			end: .closed
 			stimulus: 'ReadOnlyFile.close'
 		},
+		// Allow reading once reading has started
+		tpstv.Rule[FileStates]{
+			name: 'Read File from reading'
+			start: .reading
+			end: .reading
+			stimulus: 'ReadOnlyFile.read_line'
+		},
 	]
 }

@@ -1,2 +1,2 @@
 Typestate checker error:
-src/case_studies/02_speaker/case04_invalid/speaker.v:30: Current state is off. Transition "off + Speaker.turn_low" not accepted. Path taken: new instance -> Speaker.turn_low
+src/case_studies/02_speaker/case04_invalid/speaker.v:30: Current state for s is off. Transition "off + Speaker.turn_low" not accepted. Path taken: new instance -> Speaker.turn_low

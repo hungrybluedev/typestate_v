@@ -1,2 +1,2 @@
 Typestate checker error:
-src/case_studies/04_email_api/case04_invalid/email.v:180: Current state is configured. Transition "configured + Service.send_mail" not accepted. Path taken: new instance -> Service.static.from_config -> Service.send_mail
+src/case_studies/04_email_api/case04_invalid/email.v:180: Current state for service is configured. Transition "configured + Service.send_mail" not accepted. Path taken: new instance -> Service.static.from_config -> Service.send_mail

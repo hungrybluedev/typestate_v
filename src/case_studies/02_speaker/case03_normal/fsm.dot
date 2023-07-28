@@ -1,0 +1,17 @@
+digraph Speakerprotocol {
+	label="Speaker protocol";
+	fontname="Helvetica,Arial,sans-serif";
+	node [fontname="Helvetica,Arial,sans-serif"];
+	edge [fontname="Helvetica,Arial,sans-serif"];
+	rankdir=LR;
+	nodesep=1.5;
+	node [shape=circle,size=5];
+	off -> on [label="turn_on"];
+	on -> off [label="turn_off"];
+	low -> off [label="turn_off"];
+	high -> off [label="turn_off"];
+	on -> low [label="turn_low"];
+	high -> low [label="turn_low"];
+	on -> high [label="turn_high"];
+	low -> high [label="turn_high"];
+}

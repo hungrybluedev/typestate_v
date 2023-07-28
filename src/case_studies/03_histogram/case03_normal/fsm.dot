@@ -1,0 +1,13 @@
+digraph HistogramProtocol {
+	label="Histogram Protocol";
+	fontname="Helvetica,Arial,sans-serif";
+	node [fontname="Helvetica,Arial,sans-serif"];
+	edge [fontname="Helvetica,Arial,sans-serif"];
+	rankdir=LR;
+	nodesep=1.5;
+	node [shape=circle,size=5];
+	unready -> ready [label="static.with_bins"];
+	ready -> collecting [label="add"];
+	collecting -> collecting [label="add"];
+	collecting -> collecting [label="print"];
+}
