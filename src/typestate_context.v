@@ -161,6 +161,15 @@ fn (context TypestateContext) get_reference_states() map[string]TypestateState {
 	return states
 }
 
+fn (mut context TypestateContext) set_reference_states(states map[string]TypestateState) ! {
+	for ref, state in states {
+		mut automata := context.reference_map[ref] or {
+			return error('Reference ${ref} does not exist')
+		}
+		automata.current = state
+	}
+}
+
 fn serialise_errors(errs []errors.Error) string {
 	mut output := strings.new_builder(errs.len * 128)
 
@@ -360,7 +369,8 @@ struct TypestateAutomata {
 	initial_state TypestateState
 	transitions   map[string]TypestateTransition
 mut:
-	current TypestateState
+	current    TypestateState
+	call_chain []string
 }
 
 fn TypestateAutomata.build(protocol TypestateProtocol) !TypestateAutomata {
@@ -407,9 +417,12 @@ fn (mut automata TypestateAutomata) accept(function string) ! {
 		function
 	}
 
+	automata.call_chain << function
+
 	key := '${automata.current.name} + ${actual_name}'
 	if automata.current != automata.transitions[key].start {
-		return error('Current state is ${automata.current.name}. Transition "${key}" not accepted.')
+		critical_path := automata.call_chain.join(' -> ')
+		return error('Current state is ${automata.current.name}. Transition "${key}" not accepted. Path taken: ${critical_path}')
 	}
 	if key !in automata.transitions {
 		return error('Invalid transition: ${key}')

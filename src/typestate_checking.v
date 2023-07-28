@@ -60,6 +60,17 @@ fn prevent_regression(before_states map[string]TypestateState, after_states map[
 	}
 }
 
+fn get_furthest_states(mut previous_states map[string]TypestateState, new_states map[string]TypestateState) {
+	if previous_states == new_states {
+		return
+	}
+	for ref, state in previous_states {
+		if new_states[ref].index > state.index {
+			previous_states[ref] = new_states[ref]
+		}
+	}
+}
+
 fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_file string) ! {
 	for statement in statements {
 		// println('${statement.type_name()}\t${statement}')
@@ -265,6 +276,9 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 		}
 		ast.IfExpr {
 			before_states := context.get_reference_states()
+
+			mut furthest_states := before_states.clone()
+
 			for branch in expression.branches {
 				// Check the condition
 				mut copy_context := context.clone()!
@@ -274,12 +288,20 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 				copy_context.check_statements(branch.stmts, fn_file)!
 				after_states := copy_context.get_reference_states()
 				prevent_regression(before_states, after_states)!
+
+				// Store the furthest states
+				get_furthest_states(mut furthest_states, after_states)
 			}
+
+			// Save the furthest states
+			context.set_reference_states(furthest_states)!
 		}
 		ast.MatchExpr {
 			// Check the condition
 			context.check_expression(expression.cond, fn_file)!
 			before_states := context.get_reference_states()
+
+			mut furthest_states := before_states.clone()
 
 			// Check the branches
 			for branch in expression.branches {
@@ -291,7 +313,13 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 				copy_context.check_statements(branch.stmts, fn_file)!
 				after_states := copy_context.get_reference_states()
 				prevent_regression(before_states, after_states)!
+
+				// Store the furthest states
+				get_furthest_states(mut furthest_states, after_states)
 			}
+
+			// Save the furthest states
+			context.set_reference_states(furthest_states)!
 		}
 		else {
 			// Skip the unsupported expressions
