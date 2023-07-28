@@ -9,4 +9,5 @@ digraph MemoisedFibonacciProtocol {
 	new -> prepared [label="prepare"];
 	new -> running [label="nth"];
 	prepared -> running [label="nth"];
+	running -> running [label="nth"];
 }
