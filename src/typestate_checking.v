@@ -93,6 +93,7 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 					}
 
 					mut automata := context.original_automata.clone_ref()
+					automata.ref = identifier
 					context.reference_map[identifier] = automata
 
 					right_expression := statement.right[0]
@@ -121,6 +122,9 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 
 				// Check if the states have changed
 				prevent_regression(before_states, after_states)!
+
+				// Check the statements again
+				context.check_statements(statement.stmts, fn_file)!
 			}
 			ast.ForInStmt {
 				before_states := context.get_reference_states()
@@ -131,6 +135,9 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 
 				after_states := context.get_reference_states()
 				prevent_regression(before_states, after_states)!
+
+				// Check the statements again
+				context.check_statements(statement.stmts, fn_file)!
 			}
 			ast.Return {
 				for expr in statement.exprs {
@@ -226,7 +233,8 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 					receiver_name := method.params[0].name
 
 					// Add a sub-automata for the receiver
-					sub_automata := automata.clone_ref()
+					mut sub_automata := automata.clone_ref()
+					sub_automata.ref = receiver_name
 					context.reference_map[receiver_name] = sub_automata
 
 					context.check_function(method)!
