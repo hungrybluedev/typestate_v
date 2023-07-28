@@ -11,7 +11,6 @@ fn visualize(command cli.Command) ! {
 	println('Generated DOT string:\n')
 	println(dot_string)
 
-
 	input := os.join_path(context.directory, 'fsm.dot')
 	output := os.join_path(context.directory, 'fsm.png')
 

@@ -370,7 +370,7 @@ struct TypestateAutomata {
 	initial_state TypestateState
 	transitions   map[string]TypestateTransition
 mut:
-	ref string
+	ref        string
 	current    TypestateState
 	call_chain []string = ['new instance']
 }

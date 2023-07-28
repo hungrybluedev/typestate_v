@@ -37,6 +37,6 @@ const protocol = tpstv.Protocol[Fibonacci, FibStates]{
 			start: .running
 			end: .running
 			stimulus: 'Fibonacci.nth'
-		}
+		},
 	]
 }
