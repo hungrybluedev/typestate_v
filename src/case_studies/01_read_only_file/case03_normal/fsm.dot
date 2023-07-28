@@ -1,0 +1,14 @@
+digraph ReadonlyFileProtocol {
+	label="Read-only File Protocol";
+	fontname="Helvetica,Arial,sans-serif";
+	node [fontname="Helvetica,Arial,sans-serif"];
+	edge [fontname="Helvetica,Arial,sans-serif"];
+	rankdir=LR;
+	nodesep=1.5;
+	node [shape=circle,size=5];
+	unready -> open [label="static.open"];
+	open -> reading [label="read_line"];
+	reading -> closed [label="close"];
+	open -> closed [label="close"];
+	unready -> closed [label="close"];
+}
