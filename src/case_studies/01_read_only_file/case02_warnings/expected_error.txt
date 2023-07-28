@@ -1,4 +1,2 @@
 Standard checking produced the following warnings:
-1: unused variable: `line_len`
-	File: src/case_studies/01_read_only_file/case02_warnings/read_only_file.v
-	Line: 16
+src/case_studies/01_read_only_file/case02_warnings/read_only_file.v:16: unused variable: `line_len`

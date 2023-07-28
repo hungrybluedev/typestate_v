@@ -1,3 +1,2 @@
-Typestate error: Current state is closed. Transition "closed + ReadOnlyFile.read_line" not accepted.
-	File: src/case_studies/01_read_only_file/case04_invalid/read_only_file.v
-	Line: 39
+Typestate checker error:
+src/case_studies/01_read_only_file/case04_invalid/read_only_file.v:39: Current state is closed. Transition "closed + ReadOnlyFile.read_line" not accepted. Path taken: ReadOnlyFile.static.open -> ReadOnlyFile.close -> ReadOnlyFile.read_line
