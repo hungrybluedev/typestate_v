@@ -52,18 +52,19 @@ fn (protocol TypestateProtocol) get_dot() string {
 	}
 
 	output.write_string('digraph ${graph_name.bytestr()} {\n')
+	output.write_string('\tlabel="${protocol.name}";\n')
 	output.write_string('\tfontname="Helvetica,Arial,sans-serif";\n')
 	output.write_string('\tnode [fontname="Helvetica,Arial,sans-serif"];\n')
 	output.write_string('\tedge [fontname="Helvetica,Arial,sans-serif"];\n')
 	output.write_string('\trankdir=LR;\n\tnodesep=1.5;\n')
-
-	output.write_string('\tnode [shape=circle];\n')
+	output.write_string('\tnode [shape=circle,size=5];\n')
 
 	for rule in protocol.rules {
-		output.write_string('	${rule.start.name} -> ${rule.end.name} [label="${rule.stimulus}"];\n')
+		transition_name := rule.stimulus.after_char(`.`)
+		output.write_string('	${rule.start.name} -> ${rule.end.name} [label="${transition_name}"];\n')
 	}
 
-	output.write_string('}')
+	output.write_string('}\n')
 
 	return output.str()
 }
