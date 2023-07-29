@@ -125,6 +125,7 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 
 				// Check the statements again
 				context.check_statements(statement.stmts, fn_file)!
+				prevent_regression(before_states, context.get_reference_states())!
 			}
 			ast.ForInStmt {
 				before_states := context.get_reference_states()
@@ -138,6 +139,7 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 
 				// Check the statements again
 				context.check_statements(statement.stmts, fn_file)!
+				prevent_regression(before_states, context.get_reference_states())!
 			}
 			ast.Return {
 				for expr in statement.exprs {
@@ -295,6 +297,7 @@ fn (mut context TypestateContext) check_expression(expression ast.Expr, fn_file 
 				// Check the statements
 				copy_context.check_statements(branch.stmts, fn_file)!
 				after_states := copy_context.get_reference_states()
+
 				prevent_regression(before_states, after_states)!
 
 				// Store the furthest states

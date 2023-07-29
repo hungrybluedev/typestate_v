@@ -16,11 +16,10 @@ struct TypestateState {
 struct TypestateRule {
 	name        string
 	description string
-
+	stimulus    string
+mut:
 	start TypestateState
 	end   TypestateState
-
-	stimulus string
 }
 
 struct TypestateProtocol {
@@ -346,6 +345,18 @@ fn extract_protocol(protocol_statements []ast.Stmt) !TypestateProtocol {
 						}
 					}
 				}
+			}
+		}
+	}
+	// Put the right indices for the rules
+	for mut rule in discovered_rules {
+		for state in discovered_states {
+			if rule.start.name == state.name {
+				rule.start = state
+			}
+			// Not an else-if because the start and end can be the same
+			if rule.end.name == state.name {
+				rule.end = state
 			}
 		}
 	}
