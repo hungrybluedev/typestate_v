@@ -1,6 +1,6 @@
 Standard checking produced the following warnings:
-src/case_studies/03_histogram/case02_warnings/rng.v:42: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-src/case_studies/03_histogram/case02_warnings/rng.v:45: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-src/case_studies/03_histogram/case02_warnings/rng.v:52: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-src/case_studies/03_histogram/case02_warnings/rng.v:54: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
-src/case_studies/03_histogram/case02_warnings/rng.v:97: unused variable: `limit`
+src/case_studies/03_histogram/case02_warnings/hist.v:42: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/03_histogram/case02_warnings/hist.v:45: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/03_histogram/case02_warnings/hist.v:52: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/03_histogram/case02_warnings/hist.v:54: unnecessary `()` in `if` condition, use `if expr {` instead of `if (expr) {`.
+src/case_studies/03_histogram/case02_warnings/hist.v:97: unused variable: `limit`

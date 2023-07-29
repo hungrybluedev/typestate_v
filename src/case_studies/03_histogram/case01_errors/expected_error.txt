@@ -1,4 +1,4 @@
 Standard checking failed with the following errors:
-src/case_studies/03_histogram/case01_errors/rng.v:103: `rng` is immutable, declare it with `mut` to make it mutable
-src/case_studies/03_histogram/case01_errors/rng.v:104: `hist` is immutable, declare it with `mut` to make it mutable
-src/case_studies/03_histogram/case01_errors/rng.v:105: `hist` is immutable, declare it with `mut` to make it mutable
+src/case_studies/03_histogram/case01_errors/hist.v:103: `rng` is immutable, declare it with `mut` to make it mutable
+src/case_studies/03_histogram/case01_errors/hist.v:104: `hist` is immutable, declare it with `mut` to make it mutable
+src/case_studies/03_histogram/case01_errors/hist.v:105: `hist` is immutable, declare it with `mut` to make it mutable
