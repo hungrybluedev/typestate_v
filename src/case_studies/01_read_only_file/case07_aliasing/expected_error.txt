@@ -1,0 +1,2 @@
+Typestate checker error:
+src/case_studies/01_read_only_file/case07_aliasing/read_only_file.v:46: Current state for second_file is closed. Transition "closed + ReadOnlyFile.close" not accepted. Path taken: new instance -> ReadOnlyFile.static.open -> ReadOnlyFile.close -> ReadOnlyFile.close
