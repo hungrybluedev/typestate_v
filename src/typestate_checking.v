@@ -92,18 +92,39 @@ fn (mut context TypestateContext) check_statements(statements []ast.Stmt, fn_fil
 						return error('Cannot perform re-declaration.')
 					}
 
-					mut automata := context.original_automata.clone_ref()
-					automata.ref = identifier
-					context.reference_map[identifier] = automata
-
 					right_expression := statement.right[0]
-					if right_expression is ast.CallExpr {
-						call_expr := right_expression as ast.CallExpr
-						context.check_expression(call_expr.or_block, fn_file)!
 
-						automata.accept('${context.just_name}.${call_expr.name}') or {
-							return error('Typestate checker error:\n' +
-								serialise_state_error(err, fn_file, call_expr.pos.line_nr))
+					match right_expression {
+						ast.StructInit {
+							mut automata := context.original_automata.clone_ref()
+							automata.ref = identifier
+							context.reference_map[identifier] = automata
+						}
+						ast.CallExpr {
+							mut automata := context.original_automata.clone_ref()
+							automata.ref = identifier
+							context.reference_map[identifier] = automata
+
+							call_expr := right_expression as ast.CallExpr
+							context.check_expression(call_expr.or_block, fn_file)!
+
+							automata.accept('${context.just_name}.${call_expr.name}') or {
+								return error('Typestate checker error:\n' +
+									serialise_state_error(err, fn_file, call_expr.pos.line_nr))
+							}
+						}
+						ast.Ident {
+							// We are aliasing
+							alias := (right_expression as ast.Ident).name
+							if alias !in context.reference_map {
+								return error('Unknown reference ${alias}.')
+							}
+							context.reference_map[identifier] = context.reference_map[alias] or {
+								return error('Could not find reference ${alias}. Implementation error.')
+							}
+						}
+						else {
+							println('Unknown initialisation expression: ${right_expression.type_name()}')
 						}
 					}
 				} else {
