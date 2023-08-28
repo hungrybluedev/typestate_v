@@ -1,4 +1,4 @@
-# Histogram
+# Fibonacci
 
 ## Description
 
